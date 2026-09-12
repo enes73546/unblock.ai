@@ -64,8 +64,6 @@ async function sendMessage() {
 
       if (data.choices && data.choices[0] && data.choices[0].message) {
         const aiMessage = data.choices[0].message.content;
-        
-        // Convert Markdown string to formatted HTML
         const formattedMessage = typeof marked !== 'undefined' ? marked.parse(aiMessage) : aiMessage;
         
         chatBox.innerHTML += `<div class="message ai">${formattedMessage}</div>`;

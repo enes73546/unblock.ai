@@ -24,14 +24,37 @@ body {
 }
 
 .chat-header {
-  text-align: center;
-  padding: 4px 0 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 8px 16px;
 }
 
 .chat-header h2 {
   font-size: 1.1rem;
-  font-weight: 500;
+  font-weight: 600;
   color: #c4c7c5;
+}
+
+.header-nav {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #8e918f;
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.nav-link:hover {
+  color: #e3e3e3;
 }
 
 #chat-box {
@@ -78,7 +101,46 @@ body {
   border: 1px solid #2e2f31;
 }
 
-/* Gemini Pill Prompt Bar */
+.ai p {
+  margin-bottom: 8px;
+}
+
+.ai p:last-child {
+  margin-bottom: 0;
+}
+
+.ai ul, .ai ol {
+  margin: 8px 0 8px 20px;
+}
+
+.ai li {
+  margin-bottom: 4px;
+}
+
+.ai pre {
+  background: #111213;
+  border: 1px solid #2e2f31;
+  border-radius: 8px;
+  padding: 12px;
+  overflow-x: auto;
+  margin: 10px 0;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.88rem;
+}
+
+.ai code {
+  background: #282a2c;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.88rem;
+}
+
+.ai pre code {
+  background: transparent;
+  padding: 0;
+}
+
 .prompt-bar {
   background: #1e1f20;
   border: 1px solid #2e2f31;
@@ -177,44 +239,4 @@ input::placeholder {
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(4px); }
   to { opacity: 1; transform: translateY(0); }
-}
-
-.ai p {
-  margin-bottom: 8px;
-}
-
-.ai p:last-child {
-  margin-bottom: 0;
-}
-
-.ai ul, .ai ol {
-  margin: 8px 0 8px 20px;
-}
-
-.ai li {
-  margin-bottom: 4px;
-}
-
-.ai pre {
-  background: #111213;
-  border: 1px solid #2e2f31;
-  border-radius: 8px;
-  padding: 12px;
-  overflow-x: auto;
-  margin: 10px 0;
-  font-family: 'Courier New', Courier, monospace;
-  font-size: 0.88rem;
-}
-
-.ai code {
-  background: #282a2c;
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-family: 'Courier New', Courier, monospace;
-  font-size: 0.88rem;
-}
-
-.ai pre code {
-  background: transparent;
-  padding: 0;
 }
