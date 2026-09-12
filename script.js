@@ -8,7 +8,8 @@ async function sendMessage() {
   input.value = '';
   chatBox.scrollTop = chatBox.scrollHeight;
 
-  const apiKey = 'YOUR_API_KEY';
+  // Pulls key automatically from config.js
+  const apiKey = typeof API_KEY !== 'undefined' ? API_KEY : '';
 
   try {
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
@@ -18,16 +19,23 @@ async function sendMessage() {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'meta-llama/llama-3.3-70b-instruct:free',
         messages: [{ role: 'user', content: message }]
       })
     });
 
     const data = await response.json();
-    const aiMessage = data.choices?.[0]?.message?.content || 'Error getting response.';
-    chatBox.innerHTML += `<div class="message ai">${aiMessage}</div>`;
+
+    if (data.choices && data.choices[0] && data.choices[0].message) {
+      const aiMessage = data.choices[0].message.content;
+      chatBox.innerHTML += `<div class="message ai">${aiMessage}</div>`;
+    } else if (data.error) {
+      chatBox.innerHTML += `<div class="message ai">API Error: ${data.error.message}</div>`;
+    } else {
+      chatBox.innerHTML += `<div class="message ai">Unexpected response format.</div>`;
+    }
   } catch (error) {
-    chatBox.innerHTML += `<div class="message ai">Error connecting to AI API.</div>`;
+    chatBox.innerHTML += `<div class="message ai">Network error connecting to API.</div>`;
   }
   chatBox.scrollTop = chatBox.scrollHeight;
 }
