@@ -1,3 +1,21 @@
+async function getActiveFreeModel() {
+  try {
+    const response = await fetch('https://openrouter.ai/api/v1/models');
+    const data = await response.json();
+    
+    // Filter models that are marked free
+    const freeModels = data.data.filter(model => model.id.endsWith(':free'));
+    
+    if (freeModels.length > 0) {
+      return freeModels[0].id;
+    }
+  } catch (error) {
+    console.error('Failed to fetch available models:', error);
+  }
+  // Fallback slug
+  return 'google/gemma-2-9b-it:free';
+}
+
 async function sendMessage() {
   const input = document.getElementById('user-input');
   const chatBox = document.getElementById('chat-box');
@@ -8,8 +26,9 @@ async function sendMessage() {
   input.value = '';
   chatBox.scrollTop = chatBox.scrollHeight;
 
-  // Pulls key automatically from config.js
   const apiKey = typeof API_KEY !== 'undefined' ? API_KEY : '';
+
+  const activeModel = await getActiveFreeModel();
 
   try {
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
@@ -19,7 +38,7 @@ async function sendMessage() {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'meta-llama/llama-3.3-70b-instruct:free',
+        model: activeModel,
         messages: [{ role: 'user', content: message }]
       })
     });
@@ -30,7 +49,7 @@ async function sendMessage() {
       const aiMessage = data.choices[0].message.content;
       chatBox.innerHTML += `<div class="message ai">${aiMessage}</div>`;
     } else if (data.error) {
-      chatBox.innerHTML += `<div class="message ai">API Error: ${data.error.message}</div>`;
+      chatBox.innerHTML += `<div class="message ai">API Error (${activeModel}): ${data.error.message}</div>`;
     } else {
       chatBox.innerHTML += `<div class="message ai">Unexpected response format.</div>`;
     }
