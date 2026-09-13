@@ -26,7 +26,7 @@ body.light-theme {
   --card-bg: #ffffff;
   --text-main: #211235;
   --text-sub: #3c1e70;
-  --text-muted: #4a2980; /* High contrast dark purple for inactive links & text */
+  --text-muted: #4a2980;
   --border-color: #e2d5f8;
   --hover-bg: #eddcfc;
   --focus-border: #9d4edd;
