@@ -3,14 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>unblock.ai</title>
+  <title>unblock.ai (UV)</title>
   <link rel="stylesheet" href="style.css">
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Ultraviolet Proxy Scripts -->
+  <script src="/uv/uv.bundle.js"></script>
+  <script src="/uv/uv.config.js"></script>
 </head>
-<body>
+<body class="dark-theme">
   <div class="chat-container">
     <header class="chat-header">
-      <h2>unblock.ai</h2>
+      <h2>unblock.ai <span class="uv-badge">UV</span></h2>
       <nav class="header-nav">
         <a href="https://github.com/enes73546/unblock.ai" target="_blank" rel="noopener noreferrer" class="nav-link">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -18,42 +22,111 @@
           </svg>
           GitHub
         </a>
+        <button id="nav-chat-btn" class="nav-link active-link" onclick="showPage('chat-view')">Chat</button>
+        <button id="nav-settings-btn" class="nav-link" onclick="showPage('settings-view')">Settings</button>
+
+        <!-- Theme Toggle (Sun/Moon Swap) -->
+        <button id="theme-toggle" class="icon-nav-btn" onclick="toggleTheme()" aria-label="Toggle theme">
+          <svg class="sun-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+          <svg class="moon-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </button>
       </nav>
     </header>
 
-    <div id="chat-box"></div>
+    <main id="chat-view" class="page-view">
+      <div id="chat-box"></div>
 
-    <div class="prompt-bar">
-      <button class="plus-btn" aria-label="Add attachment">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="12" y1="5" x2="12" y2="19"></line>
-          <line x1="5" y1="12" x2="19" y2="12"></line>
-        </svg>
-      </button>
-
-      <input 
-        type="text" 
-        id="user-input" 
-        placeholder="Ask unblock.ai" 
-        onkeydown="if(event.key === 'Enter') sendMessage()"
-      >
-
-      <div class="pill-actions">
-        <div class="model-selector">
-          <span id="model-label">Ling 3.0 Flash</span>
-          <svg class="chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="6 9 12 15 18 9"></polyline>
-          </svg>
-        </div>
-
-        <button id="send-btn" onclick="sendMessage()" aria-label="Send prompt">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="12" y1="19" x2="12" y2="5"></line>
-            <polyline points="5 12 12 5 19 12"></polyline>
+      <div class="prompt-bar">
+        <button class="plus-btn" aria-label="Add attachment">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
           </svg>
         </button>
+
+        <input 
+          type="text" 
+          id="user-input" 
+          placeholder="Ask unblock.ai (UV Routed)..." 
+          onkeydown="if(event.key === 'Enter') sendMessage()"
+        >
+
+        <div class="pill-actions">
+          <div class="model-selector-wrapper">
+            <select id="model-selector" class="model-dropdown" onchange="updateSelectedModel(this.value)">
+              <option value="auto">Auto (Fallback)</option>
+              <option value="inclusionai/ling-3.0-flash:free">Ling 3.0 Flash</option>
+              <option value="google/gemini-2.0-flash-lite-preview-02-05:free">Gemini 2.0 Flash</option>
+              <option value="meta-llama/llama-3.1-8b-instruct:free">Llama 3.1 8B</option>
+              <option value="qwen/qwen-2.5-coder-32b-instruct:free">Qwen 2.5 Coder 32B</option>
+            </select>
+          </div>
+
+          <button id="send-btn" onclick="sendMessage()" aria-label="Send prompt">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="19" x2="12" y2="5"></line>
+              <polyline points="5 12 12 5 19 12"></polyline>
+            </svg>
+          </button>
+        </div>
       </div>
-    </div>
+    </main>
+
+    <main id="settings-view" class="page-view" style="display: none;">
+      <div class="settings-card">
+        <h3>Settings</h3>
+
+        <div class="setting-item">
+          <label for="uv-prefix">Ultraviolet Service Prefix</label>
+          <input type="text" id="uv-prefix" value="/uv/service/" placeholder="/uv/service/" />
+        </div>
+
+        <div class="setting-item">
+          <label for="model-preference">Preferred Model</label>
+          <select id="model-preference" class="custom-select" onchange="updateSelectedModel(this.value)">
+            <option value="auto">Auto (Fallback)</option>
+            <option value="inclusionai/ling-3.0-flash:free">Ling 3.0 Flash</option>
+            <option value="google/gemini-2.0-flash-lite-preview-02-05:free">Gemini 2.0 Flash</option>
+            <option value="meta-llama/llama-3.1-8b-instruct:free">Llama 3.1 8B</option>
+            <option value="qwen/qwen-2.5-coder-32b-instruct:free">Qwen 2.5 Coder 32B</option>
+          </select>
+        </div>
+
+        <div class="setting-item">
+          <label for="font-size">Chat Font Size</label>
+          <select id="font-size" class="custom-select" onchange="updateFontSize(this.value)">
+            <option value="small">Small</option>
+            <option value="medium" selected>Medium (Default)</option>
+            <option value="large">Large</option>
+          </select>
+        </div>
+
+        <div class="setting-item">
+          <label for="custom-api-key">Custom OpenRouter API Key</label>
+          <input type="password" id="custom-api-key" placeholder="sk-or-v1-..." />
+        </div>
+
+        <div class="setting-item">
+          <label for="system-prompt">System Prompt / Instructions</label>
+          <textarea id="system-prompt" rows="3" placeholder="You are a helpful assistant..."></textarea>
+        </div>
+
+        <button class="save-btn" onclick="saveSettings()">Save Configuration</button>
+        <span id="settings-status"></span>
+      </div>
+    </main>
   </div>
 
   <script src="config.js"></script>

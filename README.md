@@ -16,8 +16,8 @@ If the primary domain goes down, alternative mirrors will be published using dis
 
 ### **Backup Mirrors**
 * `unblockai.netlify.app`
-* `unblock-ai.netlify.app`
-* `unblock-ai-mirror.netlify.app`
+* `unblock-aicop.netlify.app`
+* `unblock-aimir.netlify.app`
 
 ---
 
